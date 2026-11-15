@@ -1,3 +1,4 @@
+
 name: Build TULAY APK
 
 on:
@@ -41,7 +42,17 @@ jobs:
         run: yes | buildozer android update
 
       - name: Build APK
-        run: buildozer android debug
+        run: |
+          set -o pipefail
+          buildozer -v android debug 2>&1 | tee build.log
+
+      - name: Upload Build Log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: TULAY-Build-Log
+          path: build.log
+          if-no-files-found: warn
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
