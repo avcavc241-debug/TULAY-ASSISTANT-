@@ -1,4 +1,3 @@
-
 name: Build TULAY APK
 
 on:
@@ -25,23 +24,17 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install dependencies
+      - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y git zip unzip \
-            autoconf libtool pkg-config \
-            zlib1g-dev libncurses5-dev \
-            libffi-dev libssl-dev cmake
+          sudo apt-get install -y git zip unzip autoconf automake libtool pkg-config zlib1g-dev libncurses5-dev libffi-dev libssl-dev cmake libltdl-dev
 
       - name: Install Buildozer
         run: |
           python -m pip install --upgrade pip
           python -m pip install buildozer cython==0.29.33
 
-      - name: Accept Android SDK Licenses
-        run: yes | buildozer android update
-
-      - name: Build APK
+      - name: Build TULAY APK
         run: |
           set -o pipefail
           buildozer -v android debug 2>&1 | tee build.log
@@ -55,7 +48,9 @@ jobs:
           if-no-files-found: warn
 
       - name: Upload APK
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: TULAY-APK
           path: bin/*.apk
+          if-no-files-found: error
